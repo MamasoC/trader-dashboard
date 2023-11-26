@@ -9,6 +9,43 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
+const fetchNewsForDate = async (date) => {
+    try {
+      const response = await newsapi.v2.everything({
+        q: 'cryptocurrency',
+        language: 'en',
+        from: date,
+        to: date,
+        sortBy: 'publishedAt'
+      });
+  
+      return response.articles.map(article => ({
+        ...article,
+        sentimentScore: sentiment.analyze(article.description || article.title).score
+      }));
+    } catch (error) {
+      console.error('Error fetching news for date:', date, error);
+      return [];
+    }
+};
+
+app.get('/api/daily-sentiment', async (req, res) => {
+    const days = 14;
+    const dailySentiments = [];
+  
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const formattedDate = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+  
+      const articles = await fetchNewsForDate(formattedDate);
+      const dailyAverage = articles.reduce((acc, article) => acc + article.sentimentScore, 0) / articles.length || 0;
+  
+      dailySentiments.push({ date: formattedDate, averageSentiment: dailyAverage });
+    }
+  
+    res.json(dailySentiments);
+});
 
 // New endpoint for crypto news
 app.get('/api/crypto-news', async (req, res) => {
