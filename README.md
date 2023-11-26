@@ -1,13 +1,21 @@
 # React + Vite
 
 Node 16+ 
+
+Frontend: 
 ```
 npm install
-cd backend 
-npm install 
-cd ../
 npm run dev
 ```
+
+Backend: 
+```
+npm install
+node index.js
+```
+
+
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
